@@ -98,7 +98,7 @@ def print_dice_list(list: DiceTool):
 def is_int(number: str):
     try:
         int(number)
-    except TypeError:
+    except TypeError, ValueError:
         return False
     
     return True
