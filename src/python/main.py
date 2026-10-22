@@ -229,10 +229,10 @@ class DiceToolCUI:
     def input_loop(self) -> bool:
         user_input = input(f"操作を入力 >>")
         
-        [count, face] = user_input.split("d")
+        click = user_input.split("d")
         
-        if is_int(count) and is_int(face):
-            print(f"出た目 :{",".join(map(str, self.tool.click_roll(int(count), int(face))))}")
+        if len(click) == 2 and is_int(click[0]) and is_int(click[1]):
+            print(f"出た目 :{",".join(map(str, self.tool.click_roll(int(click[0]), int(click[1]))))}")
             return True
             
         
