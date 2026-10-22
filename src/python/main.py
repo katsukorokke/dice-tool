@@ -13,10 +13,12 @@ class DiceList:
         
     
     def add_dice(self, dice_faces: list[int]) -> list[DiceListRecord]:
-        if len(dice_faces) == 0: return []
+        if not dice_faces: return []
         records = []
         
         for dice_face in dice_faces:
+            if dice_face == 0: continue
+            
             dice = Dice(dice_face)
             self._dice_list.append(dice)
             
@@ -26,27 +28,20 @@ class DiceList:
         return records
     
     def remove_dice(self, dice_indexes: list[int]) -> list[DiceListRecord]:
-        if len(dice_indexes) == 0: return []
+        if not dice_indexes or not self._dice_list: return []
         
+        edge = len(self._dice_list) - 1
         records = []
-        
-        current_index = -1
-        
-        for dice_index in sorted(dice_indexes, reverse=True):
-            if dice_index < 0: continue
-            
-            if current_index == dice_index:
-                continue
-            else:
 
-                current_index = dice_index
-            
-            if len(self._dice_list) < dice_index: return records
+        for dice_index in sorted(list(set(dice_indexes)), reverse=True): 
+            if dice_index < 0 or edge < dice_index: continue
             
             removed_dice = self._dice_list.pop(dice_index)
             
             record = DiceList.DiceListRecord(dice_index, str(removed_dice))
             records.append(record)
+            
+            
             
             
         return records
