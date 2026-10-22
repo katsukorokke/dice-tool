@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from dice import Dice
 
-class DiceList:
+class DiceTool:
     @dataclass
     class DiceListRecord:
         dice_index: int
@@ -10,9 +10,8 @@ class DiceList:
     
     def __init__(self) -> None:
         self._dice_list: list[Dice] = []
-        
     
-    def add_dice(self, dice_faces: list[int]) -> list[DiceListRecord]:
+    def add_dices(self, dice_faces: list[int]) -> list[DiceListRecord]:
         if not dice_faces: return []
         records = []
         
@@ -22,12 +21,12 @@ class DiceList:
             dice = Dice(dice_face)
             self._dice_list.append(dice)
             
-            record = DiceList.DiceListRecord(len(self._dice_list) - 1, str(dice))
+            record = DiceTool.DiceListRecord(len(self._dice_list) - 1, str(dice))
             records.append(record)
             
         return records
     
-    def remove_dice(self, dice_indexes: list[int]) -> list[DiceListRecord]:
+    def remove_dices(self, dice_indexes: list[int]) -> list[DiceListRecord]:
         if not dice_indexes or not self._dice_list: return []
         
         edge = len(self._dice_list) - 1
@@ -38,29 +37,28 @@ class DiceList:
             
             removed_dice = self._dice_list.pop(dice_index)
             
-            record = DiceList.DiceListRecord(dice_index, str(removed_dice))
+            record = DiceTool.DiceListRecord(dice_index, str(removed_dice))
             records.append(record)
-            
-            
-            
             
         return records
     
     def get_dice_list(self):
-        return [DiceList.DiceListRecord(i, str(dice)) for [i, dice] in enumerate(self._dice_list)]
-            
+        return [DiceTool.DiceListRecord(i, str(dice)) for [i, dice] in enumerate(self._dice_list)]         
     
-    def roll(self):
-        return [dice.roll() for dice in self._dice_list]      
+    def roll_all(self):
+        return [dice.roll() for dice in self._dice_list]     
 
-dice_list = DiceList()
+    def clear_dices(self):
+        records = self.get_dice_list()
+        
+        self._dice_list.clear()
+        
+        return records
 
-roll_command = "r"
-end_command = "e"
-
-add_command = "u"
-remove_command = "d"
-
+    def set_dices(self, dice_faces: list[int])-> list[DiceListRecord]:
+        self.clear_dices()
+        return self.add_dices(dice_faces)
+        
 def input_int(message: str, message_on_not_int: str) -> int:
     while (True):
         user_input = input(message)
@@ -80,48 +78,86 @@ def input_int_list(message: str, message_on_not_int: str) -> list[int]:
 def print_section_sep():
     print("==========================================================")
     
-def print_records(records: list[DiceList.DiceListRecord]):
+def print_records(records: list[DiceTool.DiceListRecord]):
     if not records: print("特にありません")
     for record in records: print(f"{record.dice_index}: {record.dice}")
 
-def print_dice_list(list: DiceList):
+def print_dice_list(list: DiceTool):
     for record in list.get_dice_list(): print(f"{record.dice_index}: {record.dice}")
 
-while(True):
-    user_input = input(f"サイコロを振るなら'{roll_command}'、終了するなら'{end_command}'、サイコロを増やすなら'{add_command}'、減らすなら'{remove_command}'を入力 >>")
+class DiceToolCUI:
+    ROLL = "r"
+    SHOW = "s"
     
-    print_section_sep()
+    ADD = "u"
+    REMOVE = "r"
+
+    END = "e"
+    HELP = "h"
     
-    if user_input == roll_command:
-        print(f"出た目: {",".join(map(str, dice_list.roll()))}")
-    elif user_input == end_command:
-        print("終了")
-        break
-    elif user_input == add_command:
-        dices = input_int_list("サイコロをいくつ追加しますか？個数分の面数をコンマ区切りで入力 >>", "数値を入力してください") 
-        records = dice_list.add_dice(dices)
+    def __init__(self, tool: DiceTool) -> None:
+        self.tool = tool
+    
+    def roll_dices(self):
+        print(f"出た目: {",".join(map(str, self.tool.roll_all()))}")
+    
+    def add_dices(self):
+        list = input_int_list("複数追加可能。面数をコンマ区切りで入力 >>", "無効な形式です")
         
-        print_section_sep()
+        records = self.tool.add_dices(list)
         
-        print("追加されたダイス")
+        print("追加されたサイコロ")
         print_records(records)
         
-    elif user_input == remove_command:
-        print_dice_list(dice_list)
+    def remove_dices(self):
+        print("サイコロ一覧")
+        print_dice_list(self.tool)
         
-        print_section_sep()
+        list = input_int_list("複数削除可能。サイコロ位置をコンマ区切りで入力 >>", "無効な形式です")
+        records = self.tool.remove_dices(list)
         
-        dice_indexes = input_int_list(f"どのサイコロを削除しますか？半角数値で入力してください。コンマ区切りで複数削除。 >>", "数値を入力してください")
-        
-        records = dice_list.remove_dice(dice_indexes)
-        
-        print_section_sep()    
-        
-        print("削除されたダイス")
+        print("削除されたサイコロ")
         print_records(records)
         
-    else:
-        print("何もしません")
-        
-    print_section_sep()
+    def show_dice(self):
+        print("サイコロ一覧")
+        print_dice_list(self.tool)
     
+    def help(self):
+        print(f"'{DiceToolCUI.ROLL}': すべてのサイコロを振ります")
+        print(f"'{DiceToolCUI.SHOW}': サイコロ一覧を表示します")
+        print(f"'{DiceToolCUI.ADD}': サイコロを追加します")
+        print(f"'{DiceToolCUI.REMOVE}': サイコロを削除します")
+        print(f"'{DiceToolCUI.HELP}': ヘルプを表示します")
+        print(f"'{DiceToolCUI.END}': 終了します")
+    
+    def input_loop(self) -> bool:
+        user_input = input(f"操作を入力 >>")
+        
+        match user_input:
+            case DiceToolCUI.ROLL:
+                self.roll_dices()
+            case DiceToolCUI.SHOW:
+                self.show_dice()
+            case DiceToolCUI.ADD:
+                self.add_dices()
+            case DiceToolCUI.REMOVE:
+                self.remove_dices()
+            case DiceToolCUI.HELP:
+                self.help()
+            case DiceToolCUI.END:
+                return False
+             
+        return True 
+     
+    def start(self):
+        loop = True
+        
+        while(loop):
+           loop = self.input_loop()      
+    
+dice_list = DiceTool()
+interface = DiceToolCUI(dice_list)
+
+interface.start()
+
