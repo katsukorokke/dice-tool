@@ -90,7 +90,7 @@ class DiceToolCUI:
     SHOW = "s"
     
     ADD = "u"
-    REMOVE = "r"
+    REMOVE = "d"
 
     END = "e"
     HELP = "h"
