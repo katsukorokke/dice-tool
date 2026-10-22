@@ -172,6 +172,8 @@ class DiceToolCUI:
         print_dice_list(self.tool)
     
     def help(self):
+        print("サイコロを振れるツールです")
+        
         print(f"'{DiceToolCUI.ROLL}': すべてのサイコロを振ります")
         print(f"'{DiceToolCUI.SHOW}': サイコロ一覧を表示します")
         print(f"'{DiceToolCUI.ADD}': サイコロを追加します")
@@ -246,6 +248,8 @@ class DiceToolCUI:
             case DiceToolCUI.LOAD: self.load()
             case DiceToolCUI.PRESET: self.preset()
             case DiceToolCUI.END: return False
+            case _:
+                print(f"無効なコマンドです。'{DiceToolCUI.HELP}'でヘルプ")
              
         return True 
      
