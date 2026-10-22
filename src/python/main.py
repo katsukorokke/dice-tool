@@ -63,8 +63,12 @@ class DiceTool:
     
     def get_dices_data(self):
         return [dice.face for dice in self._dice_list]
-            
+    
+    def click_roll(self, count, face):
+        dice = Dice(face)
         
+        return [dice.roll() for _ in range(count)]
+             
 def input_int(message: str, message_on_not_int: str) -> int:
     while (True):
         user_input = input(message)
@@ -99,8 +103,6 @@ def is_int(number: str):
     
     return True
     
-
-
 class JsonStorage:
     def __init__(self, directory: Path):
         self.current_directory = directory
@@ -178,6 +180,7 @@ class DiceToolCUI:
         print(f"'{DiceToolCUI.LOAD}': 保存したサイコロの並びを読み込みます")
         print(f"'{DiceToolCUI.PRESET}': 保存したサイコロの並びを取得します")
         print(f"'{DiceToolCUI.HELP}': ヘルプを表示します")
+        print(f"'<数値1>d<数値2>': <数値1>つの<数値2>面ダイスを振ります" )
         print(f"'{DiceToolCUI.END}': 終了します")
     
     def save(self):
@@ -225,6 +228,13 @@ class DiceToolCUI:
                     
     def input_loop(self) -> bool:
         user_input = input(f"操作を入力 >>")
+        
+        [count, face] = user_input.split("d")
+        
+        if is_int(count) and is_int(face):
+            print(f"出た目 :{",".join(map(str, self.tool.click_roll(int(count), int(face))))}")
+            return True
+            
         
         match user_input:
             case DiceToolCUI.ROLL: self.roll_dices()
